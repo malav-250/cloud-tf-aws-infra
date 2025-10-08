@@ -41,7 +41,7 @@ variable "az_count" {
   description = "Number of availability zones to use"
   type        = number
   default     = 3
-  
+
   validation {
     condition     = var.az_count >= 2 && var.az_count <= 6
     error_message = "AZ count must be between 2 and 6"
