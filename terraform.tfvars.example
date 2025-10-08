@@ -11,9 +11,15 @@ environment = "dev"
 # VPC CIDR
 vpc_cidr = "10.0.0.0/16"
 
-# Subnet CIDRs (must be within VPC CIDR)
-public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-private_subnet_cidrs = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
+public_subnet_count = 3
+private_subnet_count = 3
+
+subnet_cidr_newbits = 8
 
 # Number of availability zones
 az_count = 3
+
+# Allows instances to receive DNS hostnames
+enable_dns_hostnames = true
+# Enables DNS resolution in the VPC
+enable_dns_support = true
