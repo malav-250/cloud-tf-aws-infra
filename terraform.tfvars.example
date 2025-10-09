@@ -4,7 +4,7 @@ aws_region  = "us-east-1"
 vpc_name    = "csye6225-dev"
 environment = "dev"
 
-# VPC CIDR
+#VPC CIDR
 vpc_cidr = "10.0.0.0/16"
 
 public_subnet_count = 3
@@ -15,7 +15,7 @@ subnet_cidr_newbits = 8
 # Number of availability zones
 az_count = 3
 
-# Allows instances to receive DNS hostnames
+#allows instances to receive DNS hostnames
 enable_dns_hostnames = true
-# Enables DNS resolution in the VPC
+#enables DNS resolution in the VPC
 enable_dns_support = true
