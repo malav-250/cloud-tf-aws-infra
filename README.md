@@ -123,6 +123,7 @@ GitHub Actions workflow automatically runs on pull requests:
 
 ```
 .
+├── .github/workflows/terraform-ci.yml     #ci yml
 ├── vpc.tf                  # VPC resource definition
 ├── subnets.tf             # Public and private subnet creation
 ├── internet_gateway.tf    # Internet Gateway configuration
