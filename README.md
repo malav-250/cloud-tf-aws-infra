@@ -4,7 +4,7 @@ Infrastructure as Code for CSYE6225 Cloud Computing course. This repository cont
 
 ## Prerequisites
 
-- **Terraform** >= 1.0 ([Installation Guide](https://learn.hashicorp.com/tutorials/terraform/install-cli))
+- **Terraform** >= 1.0 ([Installation Guide ](https://learn.hashicorp.com/tutorials/terraform/install-cli))
 - **AWS CLI** configured with credentials ([Setup Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html))
 - **AWS Account** with appropriate permissions
 
