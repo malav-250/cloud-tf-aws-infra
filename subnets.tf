@@ -1,4 +1,4 @@
-# Create Public Subnets (dynamically calculated CIDRs)
+#create Public Subnets (dynamically calculated CIDRs)
 resource "aws_subnet" "public" {
   count = var.public_subnet_count
 
@@ -14,7 +14,7 @@ resource "aws_subnet" "public" {
   }
 }
 
-# Create Private Subnets (dynamically calculated CIDRs with offset)
+#create Private Subnets (dynamically calculated CIDRs with offset)
 resource "aws_subnet" "private" {
   count = var.private_subnet_count
 

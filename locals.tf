@@ -1,9 +1,9 @@
-# Local values for computed configurations
+#local values for computed configurations
 locals {
   # Determine which AZs to use
   all_available_azs = data.aws_availability_zones.available.names
 
-  # If specific AZs provided, use those; otherwise use first N available AZs
+  #if specific AZs provided, use those; otherwise use first N available AZs
   selected_azs = length(var.availability_zones) > 0 ? var.availability_zones : slice(
     local.all_available_azs,
     0,
