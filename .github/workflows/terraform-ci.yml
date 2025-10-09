@@ -4,9 +4,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - '**.tf'
-      - '.github/workflows/terraform-ci.yml'
 
 jobs:
   terraform-checks:
