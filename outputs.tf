@@ -138,3 +138,93 @@ output "infrastructure_summary" {
     internet_gateway_id = aws_internet_gateway.main.id
   }
 }
+
+# Security Group Outputs
+output "application_security_group_id" {
+  description = "ID of the application security group"
+  value       = aws_security_group.application.id
+}
+
+output "application_security_group_name" {
+  description = "Name of the application security group"
+  value       = aws_security_group.application.name
+}
+
+# AMI Outputs
+output "ami_id_used" {
+  description = "AMI ID used for the EC2 instance"
+  value       = var.custom_ami_id != "" ? var.custom_ami_id : data.aws_ami.latest_custom_ami.id
+}
+
+output "ami_name" {
+  description = "Name of the AMI used"
+  value       = var.custom_ami_id != "" ? "Custom AMI specified" : data.aws_ami.latest_custom_ami.name
+}
+
+output "ami_creation_date" {
+  description = "Creation date of the AMI"
+  value       = var.custom_ami_id != "" ? "N/A" : data.aws_ami.latest_custom_ami.creation_date
+}
+
+# EC2 Instance Outputs
+output "ec2_instance_id" {
+  description = "ID of the EC2 instance"
+  value       = aws_instance.web_application.id
+}
+
+output "ec2_instance_public_ip" {
+  description = "Public IP address of the EC2 instance"
+  value       = aws_instance.web_application.public_ip
+}
+
+output "ec2_instance_public_dns" {
+  description = "Public DNS name of the EC2 instance"
+  value       = aws_instance.web_application.public_dns
+}
+
+output "ec2_instance_private_ip" {
+  description = "Private IP address of the EC2 instance"
+  value       = aws_instance.web_application.private_ip
+}
+
+output "ec2_instance_availability_zone" {
+  description = "Availability zone of the EC2 instance"
+  value       = aws_instance.web_application.availability_zone
+}
+
+# Application Access Information
+output "application_endpoints" {
+  description = "Application access endpoints"
+  value = {
+    health_check = "http://${aws_instance.web_application.public_ip}:${var.application_port}/healthz"
+    base_url     = "http://${aws_instance.web_application.public_ip}:${var.application_port}"
+    ssh_command  = "ssh -i <your-key.pem> admin@${aws_instance.web_application.public_ip}"
+  }
+}
+
+# Complete Infrastructure Summary (Updated)
+output "complete_infrastructure_summary" {
+  description = "Complete summary of infrastructure"
+  value = {
+    # Network
+    vpc_id             = aws_vpc.main.id
+    vpc_cidr           = aws_vpc.main.cidr_block
+    public_subnets     = length(aws_subnet.public)
+    private_subnets    = length(aws_subnet.private)
+    availability_zones = local.az_count
+
+    # Security
+    security_group_id = aws_security_group.application.id
+
+    # Compute
+    instance_id   = aws_instance.web_application.id
+    instance_type = var.instance_type
+    ami_id        = var.custom_ami_id != "" ? var.custom_ami_id : data.aws_ami.latest_custom_ami.id
+    public_ip     = aws_instance.web_application.public_ip
+
+    # Application
+    application_port = var.application_port
+    environment      = var.environment
+    region           = var.aws_region
+  }
+}
