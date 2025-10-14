@@ -25,6 +25,8 @@ resource "aws_instance" "web_application" {
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.public[0].id
   vpc_security_group_ids = [aws_security_group.application.id]
+  key_name               = "csye6225-dev"
+
 
   # Disable termination protection
   disable_api_termination = false
@@ -44,16 +46,8 @@ resource "aws_instance" "web_application" {
     encrypted             = true
   }
 
-  # User data script - creates .env file with database credentials
-  user_data = templatefile("${path.module}/user_data.sh", {
-    db_host     = var.db_host
-    db_port     = var.db_port
-    db_name     = var.db_name
-    db_user     = var.db_user
-    db_password = var.db_password
-    app_port    = var.application_port
-    app_env     = var.app_env
-  })
+  # NO USER DATA NEEDED! Everything is pre-configured in the AMI
+  # The application will start automatically via systemd
 
   tags = {
     Name = "${var.vpc_name}-webapp-instance"
