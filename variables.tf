@@ -93,3 +93,99 @@ variable "enable_dns_support" {
   type        = bool
   default     = true
 }
+
+# Security Group Configuration
+variable "application_port" {
+  description = "Port on which the application runs"
+  type        = number
+  default     = 8000
+
+  validation {
+    condition     = var.application_port >= 1 && var.application_port <= 65535
+    error_message = "Application port must be between 1 and 65535"
+  }
+}
+
+# EC2 Instance Configuration
+variable "instance_type" {
+  description = "EC2 instance type"
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "root_volume_size" {
+  description = "Size of root EBS volume in GB"
+  type        = number
+  default     = 25
+
+  validation {
+    condition     = var.root_volume_size >= 8 && var.root_volume_size <= 16384
+    error_message = "Root volume size must be between 8 GB and 16 TB"
+  }
+}
+
+variable "root_volume_type" {
+  description = "Type of root EBS volume"
+  type        = string
+  default     = "gp2"
+
+  validation {
+    condition     = contains(["gp2", "gp3", "io1", "io2", "st1", "sc1"], var.root_volume_type)
+    error_message = "Root volume type must be one of: gp2, gp3, io1, io2, st1, sc1"
+  }
+}
+
+# AMI Configuration
+variable "custom_ami_id" {
+  description = "Custom AMI ID to use for EC2 instance (leave empty to use latest)"
+  type        = string
+  default     = ""
+}
+
+variable "ami_owner_id" {
+  description = "AWS account ID that owns the AMI"
+  type        = string
+}
+
+variable "ami_name_filter" {
+  description = "Name filter pattern for AMI search"
+  type        = string
+  default     = "csye6225-*"
+}
+
+# Database Configuration
+variable "db_host" {
+  description = "Database host"
+  type        = string
+  default     = "localhost"
+}
+
+variable "db_port" {
+  description = "Database port"
+  type        = number
+  default     = 5432
+}
+
+variable "db_name" {
+  description = "Database name"
+  type        = string
+  default     = "webapp"
+}
+
+variable "db_user" {
+  description = "Database user"
+  type        = string
+  default     = "webapp"
+}
+
+variable "db_password" {
+  description = "Database password"
+  type        = string
+  sensitive   = true
+}
+
+variable "app_env" {
+  description = "Application environment"
+  type        = string
+  default     = "production"
+}
