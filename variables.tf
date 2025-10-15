@@ -1,3 +1,10 @@
+# AWS Profile Configuration
+variable "aws_profile" {
+  description = "AWS CLI profile to use for authentication"
+  type        = string
+  default     = "default"
+}
+
 # Region configuration
 variable "aws_region" {
   description = "AWS region where resources will be created"
@@ -107,6 +114,11 @@ variable "application_port" {
 }
 
 # EC2 Instance Configuration
+variable "ec2_key_name" {
+  description = "Name of the EC2 key pair for SSH access"
+  type        = string
+}
+
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
