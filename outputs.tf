@@ -228,3 +228,30 @@ output "complete_infrastructure_summary" {
     region           = var.aws_region
   }
 }
+
+# S3 Outputs
+output "s3_bucket_name" {
+  description = "S3 bucket name for product images"
+  value       = aws_s3_bucket.product_images.bucket
+}
+
+output "s3_bucket_arn" {
+  description = "S3 bucket ARN"
+  value       = aws_s3_bucket.product_images.arn
+}
+
+output "s3_bucket_region" {
+  description = "S3 bucket region"
+  value       = aws_s3_bucket.product_images.region
+}
+
+# IAM Outputs (already in iam_roles.tf, but duplicated here for completeness)
+output "ec2_iam_role_name" {
+  description = "Name of the IAM role attached to EC2"
+  value       = aws_iam_role.ec2_role.name
+}
+
+output "ec2_instance_profile_name" {
+  description = "Name of the EC2 instance profile"
+  value       = aws_iam_instance_profile.ec2_profile.name
+}

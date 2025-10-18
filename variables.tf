@@ -164,3 +164,29 @@ variable "ami_name_filter" {
   type        = string
   default     = "csye6225-*"
 }
+
+# Common Tags
+variable "common_tags" {
+  description = "Common tags to apply to all resources"
+  type        = map(string)
+  default     = {}
+}
+
+# Database Configuration (for future RDS migration)
+variable "db_name" {
+  description = "Database name"
+  type        = string
+  default     = "webapp"
+}
+
+variable "db_username" {
+  description = "Database master username"
+  type        = string
+  default     = "webapp_user"
+}
+
+variable "db_password" {
+  description = "Database master password"
+  type        = string
+  sensitive   = true
+}

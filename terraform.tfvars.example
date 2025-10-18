@@ -1,21 +1,37 @@
-# Copy this file to terraform.tfvars and customize for your deployment
-
+# AWS Configuration
+aws_profile = "abc"
 aws_region  = "us-east-1"
-vpc_name    = "csye6225-dev"
-environment = "dev"
 
-#VPC CIDR
-vpc_cidr = "10.0.0.0/16"
-
+# Network Configuration
+vpc_name            = "csye6225-dev"
+environment         = "dev"
+vpc_cidr            = "10.0.0.0/16"
 public_subnet_count = 3
 private_subnet_count = 3
 
-subnet_cidr_newbits = 8
+# Security
+application_port = 8000
 
-# Number of availability zones
-az_count = 3
+# EC2 Configuration
+ec2_key_name   = "your-key-name"  # Replace with your actual key name
+instance_type  = "t2.micro"
+root_volume_size = 25
+root_volume_type = "gp2"
 
-#allows instances to receive DNS hostnames
-enable_dns_hostnames = true
-#enables DNS resolution in the VPC
-enable_dns_support = true
+# AMI Configuration
+ami_owner_id     = "#################"  # Your dev account ID
+ami_name_filter  = "csye6225-*"
+custom_ami_id    = ""  # Leave empty to use latest AMI
+
+# Database Configuration (for Phase 4)
+db_name     = "webapp"
+db_username = "webapp_user"
+db_password = "CHANGE_ME_IN_PRODUCTION"  # TODO: Use secure method in production
+
+# Common Tags
+common_tags = {
+  Project     = "CSYE6225"
+  Course      = "Cloud Computing"
+  Environment = "Development"
+  ManagedBy   = "Terraform"
+}
