@@ -1,3 +1,5 @@
+# ec2.tf
+
 # Data source to fetch the latest custom AMI
 data "aws_ami" "latest_custom_ami" {
   most_recent = true
@@ -100,52 +102,36 @@ locals {
 }
 
 # EC2 Instance
-resource "aws_instance" "web_application" {
-  ami                    = var.custom_ami_id != "" ? var.custom_ami_id : data.aws_ami.latest_custom_ami.id
+resource "aws_instance" "web_application" {                  # Changed from "webapp" to match outputs
+  ami                    = data.aws_ami.latest_custom_ami.id # Use data source instead of var.ami_id
   instance_type          = var.instance_type
+  key_name               = var.ec2_key_name                    # Changed from var.key_name
+  vpc_security_group_ids = [aws_security_group.application.id] # You need to check your security group name
   subnet_id              = aws_subnet.public[0].id
-  vpc_security_group_ids = [aws_security_group.application.id]
-  key_name               = var.ec2_key_name
 
-  # Attach IAM instance profile for S3 access
-  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
-
-  # Disable termination protection
-  disable_api_termination = false
-
-  # Instance metadata options (IMDSv2)
-  metadata_options {
-    http_endpoint               = "enabled"
-    http_tokens                 = "required"
-    http_put_response_hop_limit = 1
-  }
+  # Attach the instance profile
+  iam_instance_profile = aws_iam_instance_profile.webapp_instance_profile.name
 
   # Root volume configuration
   root_block_device {
     volume_size           = var.root_volume_size
     volume_type           = var.root_volume_type
     delete_on_termination = true
-    encrypted             = true
   }
 
-  # User data to configure runtime environment
+  # Use the local user_data instead of templatefile
   user_data = base64encode(local.user_data)
 
-  # Replace instance when user data changes
-  user_data_replace_on_change = true
+  # Depends on S3 bucket being created
+  depends_on = [
+    aws_s3_bucket.product_images
+  ]
 
   tags = merge(
     var.common_tags,
     {
-      Name = "${var.vpc_name}-webapp-instance"
+      Name        = "WebApp-Instance-${var.environment}"
+      Environment = var.environment
     }
   )
-
-  # Ensure proper resource dependencies
-  depends_on = [
-    aws_internet_gateway.main,
-    aws_route_table_association.public,
-    aws_s3_bucket.product_images,
-    aws_iam_instance_profile.ec2_profile
-  ]
 }

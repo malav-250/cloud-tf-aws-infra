@@ -64,12 +64,16 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "product_images" {
 }
 
 # Lifecycle policy to manage old versions and reduce costs
+# Lifecycle policy to manage old versions and reduce costs
 resource "aws_s3_bucket_lifecycle_configuration" "product_images" {
   bucket = aws_s3_bucket.product_images.id
 
   rule {
     id     = "expire-old-versions"
     status = "Enabled"
+
+    # Add this filter block to fix the warning
+    filter {}
 
     noncurrent_version_expiration {
       noncurrent_days = 30
