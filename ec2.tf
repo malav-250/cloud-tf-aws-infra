@@ -1,4 +1,4 @@
-# ec2.tf
+# ec2.tf - Phase 6 Testing Version (No RDS references)
 
 # Data source to fetch the latest custom AMI
 data "aws_ami" "latest_custom_ami" {
@@ -21,7 +21,7 @@ data "aws_ami" "latest_custom_ami" {
   }
 }
 
-# User Data Script
+# User Data Script - Phase 6 Testing (S3 only, no RDS)
 locals {
   user_data = <<-EOF
     #!/bin/bash
@@ -32,6 +32,7 @@ locals {
     
     echo "=========================================="
     echo "User Data Script Started: $(date)"
+    echo "Phase 6 Testing - No RDS Configuration"
     echo "=========================================="
     
     # Application directory
@@ -49,22 +50,25 @@ locals {
     # Check if .env exists (from AMI)
     if [ -f .env ]; then
       echo "Found existing .env file from AMI"
-      echo "Current .env contents:"
+      echo "Current .env contents (placeholder):"
       cat .env
       echo ""
     else
       echo "WARNING: No .env file found from AMI"
+      exit 1
     fi
     
     # APPEND S3 configuration to existing .env file
     echo "" >> .env
+    echo "# ============================================================================" >> .env
     echo "# S3 Configuration (added at runtime by Terraform)" >> .env
+    echo "# ============================================================================" >> .env
     echo "S3_BUCKET_NAME=${aws_s3_bucket.product_images.bucket}" >> .env
     echo "AWS_REGION=${var.aws_region}" >> .env
     echo "ENVIRONMENT=${var.environment}" >> .env
     
     echo "=========================================="
-    echo "Updated .env file:"
+    echo "Updated .env file (with S3, no RDS yet):"
     echo "=========================================="
     cat .env
     echo "=========================================="
@@ -73,26 +77,10 @@ locals {
     chown csye6225:csye6225 .env
     chmod 600 .env
     
-    # Restart application to pick up new environment variables
+    # DO NOT start webapp service yet (no database connection)
     echo ""
-    echo "Restarting webapp service..."
-    systemctl daemon-reload
-    systemctl restart webapp.service
-    
-    # Wait for service to start
-    sleep 5
-    
-    # Check service status
-    echo ""
-    if systemctl is-active --quiet webapp.service; then
-      echo "✅ webapp.service is running"
-      systemctl status webapp.service --no-pager -l
-    else
-      echo "❌ webapp.service failed to start"
-      echo "Service logs:"
-      journalctl -u webapp.service --no-pager -n 50
-      exit 1
-    fi
+    echo "NOTE: webapp service is enabled but NOT started (no RDS yet)"
+    echo "This is expected for Phase 6 testing"
     
     echo ""
     echo "=========================================="
@@ -102,11 +90,11 @@ locals {
 }
 
 # EC2 Instance
-resource "aws_instance" "web_application" {                  # Changed from "webapp" to match outputs
-  ami                    = data.aws_ami.latest_custom_ami.id # Use data source instead of var.ami_id
+resource "aws_instance" "web_application" {
+  ami                    = data.aws_ami.latest_custom_ami.id
   instance_type          = var.instance_type
-  key_name               = var.ec2_key_name                    # Changed from var.key_name
-  vpc_security_group_ids = [aws_security_group.application.id] # You need to check your security group name
+  key_name               = var.ec2_key_name
+  vpc_security_group_ids = [aws_security_group.application.id]
   subnet_id              = aws_subnet.public[0].id
 
   # Attach the instance profile
@@ -119,12 +107,14 @@ resource "aws_instance" "web_application" {                  # Changed from "web
     delete_on_termination = true
   }
 
-  # Use the local user_data instead of templatefile
+  # Use the local user_data
   user_data = base64encode(local.user_data)
 
   # Depends on S3 bucket being created
   depends_on = [
-    aws_s3_bucket.product_images
+    aws_s3_bucket.product_images,
+    aws_iam_instance_profile.webapp_instance_profile,
+    aws_iam_role_policy_attachment.webapp_s3_policy_attachment
   ]
 
   tags = merge(
@@ -132,6 +122,7 @@ resource "aws_instance" "web_application" {                  # Changed from "web
     {
       Name        = "WebApp-Instance-${var.environment}"
       Environment = var.environment
+      Purpose     = "Web Application Server"
     }
   )
 }
