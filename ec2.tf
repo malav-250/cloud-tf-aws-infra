@@ -1,5 +1,3 @@
-# ec2.tf - Phase 6 Testing Version (No RDS references)
-
 # Data source to fetch the latest custom AMI
 data "aws_ami" "latest_custom_ami" {
   most_recent = true
@@ -21,7 +19,7 @@ data "aws_ami" "latest_custom_ami" {
   }
 }
 
-# User Data Script - Phase 6 Testing (S3 only, no RDS)
+# User Data Script - Phase 7 (with RDS)
 locals {
   user_data = <<-EOF
     #!/bin/bash
@@ -32,7 +30,7 @@ locals {
     
     echo "=========================================="
     echo "User Data Script Started: $(date)"
-    echo "Phase 6 Testing - No RDS Configuration"
+    echo "Phase 7: RDS + S3 Configuration"
     echo "=========================================="
     
     # Application directory
@@ -58,8 +56,18 @@ locals {
       exit 1
     fi
     
-    # APPEND S3 configuration to existing .env file
     echo "" >> .env
+    echo "# ============================================================================" >> .env
+    echo "# RDS Database Configuration (added at runtime by Terraform)" >> .env
+    echo "# ============================================================================" >> .env
+    echo "DATABASE_HOST=${aws_db_instance.webapp_db.address}" >> .env
+    echo "DATABASE_PORT=${aws_db_instance.webapp_db.port}" >> .env
+    echo "DATABASE_NAME=${var.db_name}" >> .env
+    echo "DATABASE_USER=${var.db_username}" >> .env
+    echo "DATABASE_PASSWORD=${var.db_password}" >> .env
+    echo "DATABASE_URL=postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.webapp_db.address}:${aws_db_instance.webapp_db.port}/${var.db_name}" >> .env
+    echo "" >> .env
+    
     echo "# ============================================================================" >> .env
     echo "# S3 Configuration (added at runtime by Terraform)" >> .env
     echo "# ============================================================================" >> .env
@@ -68,19 +76,60 @@ locals {
     echo "ENVIRONMENT=${var.environment}" >> .env
     
     echo "=========================================="
-    echo "Updated .env file (with S3, no RDS yet):"
+    echo "Updated .env file:"
     echo "=========================================="
-    cat .env
+    # Show .env but mask password
+    cat .env | sed 's/PASSWORD=.*/PASSWORD=***MASKED***/'
     echo "=========================================="
     
     # Set proper permissions
     chown csye6225:csye6225 .env
     chmod 600 .env
     
-    # DO NOT start webapp service yet (no database connection)
+    # Test database connectivity before starting service
     echo ""
-    echo "NOTE: webapp service is enabled but NOT started (no RDS yet)"
-    echo "This is expected for Phase 6 testing"
+    echo "Testing database connectivity..."
+    
+    # Wait for RDS to be ready (it might still be initializing)
+    max_attempts=30
+    attempt=0
+    
+    while [ $attempt -lt $max_attempts ]; do
+      if timeout 5 bash -c "cat < /dev/null > /dev/tcp/${aws_db_instance.webapp_db.address}/${aws_db_instance.webapp_db.port}"; then
+        echo "Database port is reachable"
+        break
+      else
+        attempt=$((attempt + 1))
+        echo "Waiting for database... (attempt $attempt/$max_attempts)"
+        sleep 10
+      fi
+    done
+    
+    if [ $attempt -eq $max_attempts ]; then
+      echo "WARNING: Could not connect to database after $max_attempts attempts"
+      echo "Service may fail to start. Check RDS status."
+    fi
+    
+    # Restart application to pick up new environment variables
+    echo ""
+    echo "Restarting webapp service..."
+    systemctl daemon-reload
+    systemctl restart webapp.service
+    
+    # Wait for service to start
+    sleep 5
+    
+    # Check service status
+    echo ""
+    if systemctl is-active --quiet webapp.service; then
+      echo "webapp.service is running"
+      systemctl status webapp.service --no-pager -l
+    else
+      echo "webapp.service failed to start"
+      echo "Service logs:"
+      journalctl -u webapp.service --no-pager -n 50
+      exit 1
+    fi
     
     echo ""
     echo "=========================================="
@@ -110,11 +159,12 @@ resource "aws_instance" "web_application" {
   # Use the local user_data
   user_data = base64encode(local.user_data)
 
-  # Depends on S3 bucket being created
+  # CRITICAL: Ensure RDS and S3 are created first
   depends_on = [
     aws_s3_bucket.product_images,
     aws_iam_instance_profile.webapp_instance_profile,
-    aws_iam_role_policy_attachment.webapp_s3_policy_attachment
+    aws_iam_role_policy_attachment.webapp_s3_policy_attachment,
+    aws_db_instance.webapp_db
   ]
 
   tags = merge(
@@ -125,4 +175,7 @@ resource "aws_instance" "web_application" {
       Purpose     = "Web Application Server"
     }
   )
+
+  # User data should run on every update
+  user_data_replace_on_change = true
 }
