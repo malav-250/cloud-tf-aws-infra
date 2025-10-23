@@ -190,3 +190,93 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+# ============================================================================
+# RDS CONFIGURATION VARIABLES
+# Add these to the end of your variables.tf file
+# ============================================================================
+
+# Database Engine Configuration
+variable "db_engine_version" {
+  description = "PostgreSQL engine version"
+  type        = string
+  default     = "16.4"
+}
+
+variable "db_instance_class" {
+  description = "RDS instance class"
+  type        = string
+  default     = "db.t3.micro"
+
+  validation {
+    condition     = can(regex("^db\\.", var.db_instance_class))
+    error_message = "Instance class must start with 'db.'"
+  }
+}
+
+# Storage Configuration
+variable "db_allocated_storage" {
+  description = "Initial storage allocation in GB"
+  type        = number
+  default     = 20
+
+  validation {
+    condition     = var.db_allocated_storage >= 20 && var.db_allocated_storage <= 65536
+    error_message = "Allocated storage must be between 20 GB and 64 TB"
+  }
+}
+
+variable "db_max_allocated_storage" {
+  description = "Maximum storage for autoscaling in GB (0 to disable)"
+  type        = number
+  default     = 100
+}
+
+variable "db_storage_type" {
+  description = "Storage type (gp2, gp3, io1)"
+  type        = string
+  default     = "gp3"
+
+  validation {
+    condition     = contains(["gp2", "gp3", "io1"], var.db_storage_type)
+    error_message = "Storage type must be gp2, gp3, or io1"
+  }
+}
+
+# High Availability Configuration
+variable "db_multi_az" {
+  description = "Enable Multi-AZ deployment"
+  type        = bool
+  default     = false # Set to true for production
+}
+
+# Backup Configuration
+variable "db_backup_retention_period" {
+  description = "Number of days to retain backups (0-35)"
+  type        = number
+  default     = 7
+
+  validation {
+    condition     = var.db_backup_retention_period >= 0 && var.db_backup_retention_period <= 35
+    error_message = "Backup retention must be between 0 and 35 days"
+  }
+}
+
+variable "db_backup_window" {
+  description = "Preferred backup window (UTC)"
+  type        = string
+  default     = "03:00-04:00"
+}
+
+variable "db_maintenance_window" {
+  description = "Preferred maintenance window (UTC)"
+  type        = string
+  default     = "sun:04:00-sun:05:00"
+}
+
+# Deletion Protection
+variable "db_deletion_protection" {
+  description = "Enable deletion protection"
+  type        = bool
+  default     = false # Set to true for production
+}

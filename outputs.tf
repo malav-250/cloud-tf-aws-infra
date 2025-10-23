@@ -259,3 +259,101 @@ output "s3_policy_arn" {
   description = "ARN of the S3 access policy"
   value       = aws_iam_policy.webapp_s3_policy.arn
 }
+
+# ============================================================================
+# RDS DATABASE OUTPUTS
+# Add these to the end of your outputs.tf file
+# ============================================================================
+
+output "rds_instance_id" {
+  description = "ID of the RDS instance"
+  value       = aws_db_instance.webapp_db.id
+}
+
+output "rds_instance_arn" {
+  description = "ARN of the RDS instance"
+  value       = aws_db_instance.webapp_db.arn
+}
+
+output "rds_endpoint" {
+  description = "RDS instance endpoint (host:port)"
+  value       = aws_db_instance.webapp_db.endpoint
+}
+
+output "rds_address" {
+  description = "RDS instance hostname"
+  value       = aws_db_instance.webapp_db.address
+}
+
+output "rds_port" {
+  description = "RDS instance port"
+  value       = aws_db_instance.webapp_db.port
+}
+
+output "rds_database_name" {
+  description = "Name of the database"
+  value       = aws_db_instance.webapp_db.db_name
+}
+
+output "rds_username" {
+  description = "Master username"
+  value       = aws_db_instance.webapp_db.username
+  sensitive   = true
+}
+
+output "rds_availability_zone" {
+  description = "Availability zone of the RDS instance"
+  value       = aws_db_instance.webapp_db.availability_zone
+}
+
+output "rds_security_group_id" {
+  description = "ID of the RDS security group"
+  value       = aws_security_group.rds.id
+}
+
+output "rds_subnet_group_name" {
+  description = "Name of the DB subnet group"
+  value       = aws_db_subnet_group.webapp.name
+}
+
+output "database_connection_string" {
+  description = "Database connection string (excluding password)"
+  value       = "postgresql://${var.db_username}:****@${aws_db_instance.webapp_db.address}:${aws_db_instance.webapp_db.port}/${var.db_name}"
+}
+
+# Complete Infrastructure Summary with RDS
+output "complete_infrastructure_summary_with_rds" {
+  description = "Complete summary of infrastructure including RDS"
+  value = {
+    # Network
+    vpc_id             = aws_vpc.main.id
+    vpc_cidr           = aws_vpc.main.cidr_block
+    public_subnets     = length(aws_subnet.public)
+    private_subnets    = length(aws_subnet.private)
+    availability_zones = local.az_count
+
+    # Security
+    application_sg_id = aws_security_group.application.id
+    rds_sg_id         = aws_security_group.rds.id
+
+    # Compute
+    ec2_instance_id   = aws_instance.web_application.id
+    ec2_instance_type = var.instance_type
+    ec2_ami_id        = data.aws_ami.latest_custom_ami.id
+    ec2_public_ip     = aws_instance.web_application.public_ip
+
+    # Database
+    rds_instance_id = aws_db_instance.webapp_db.id
+    rds_endpoint    = aws_db_instance.webapp_db.endpoint
+    rds_engine      = "postgres"
+    rds_version     = var.db_engine_version
+
+    # Storage
+    s3_bucket_name = aws_s3_bucket.product_images.bucket
+
+    # Application
+    application_port = var.application_port
+    environment      = var.environment
+    region           = var.aws_region
+  }
+}
