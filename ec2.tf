@@ -159,11 +159,12 @@ resource "aws_instance" "web_application" {
   # Use the local user_data
   user_data = base64encode(local.user_data)
 
-  # CRITICAL: Ensure RDS and S3 are created first
+  # CRITICAL: Ensure all IAM policies are attached before instance starts
   depends_on = [
     aws_s3_bucket.product_images,
     aws_iam_instance_profile.webapp_instance_profile,
     aws_iam_role_policy_attachment.webapp_s3_policy_attachment,
+    aws_iam_role_policy_attachment.webapp_cloudwatch_policy_attachment, # ADD THIS LINE
     aws_db_instance.webapp_db
   ]
 
