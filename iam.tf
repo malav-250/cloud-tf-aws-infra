@@ -38,7 +38,7 @@ resource "aws_iam_policy" "webapp_s3_policy" {
 }
 
 # ============================================================================
-# CLOUDWATCH POLICY (NEW - Phase 7)
+# CLOUDWATCH POLICY
 # ============================================================================
 resource "aws_iam_policy" "webapp_cloudwatch_policy" {
   name        = "WebAppCloudWatchPolicy-${var.environment}"
@@ -125,13 +125,13 @@ resource "aws_iam_role_policy_attachment" "webapp_s3_policy_attachment" {
   policy_arn = aws_iam_policy.webapp_s3_policy.arn
 }
 
-# Attach CloudWatch policy to the EC2 role (NEW)
+# Attach CloudWatch policy to the EC2 role
 resource "aws_iam_role_policy_attachment" "webapp_cloudwatch_policy_attachment" {
   role       = aws_iam_role.webapp_ec2_role.name
   policy_arn = aws_iam_policy.webapp_cloudwatch_policy.arn
 }
 
-# ===========================================================================
+# ============================================================================
 # INSTANCE PROFILE
 # ============================================================================
 resource "aws_iam_instance_profile" "webapp_instance_profile" {
