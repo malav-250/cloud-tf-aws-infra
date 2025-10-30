@@ -146,14 +146,14 @@ output "health_check_url" {
 output "deployment_summary" {
   description = "Summary of deployed infrastructure"
   value = {
-    environment           = var.environment
-    region                = var.aws_region
-    vpc_id                = aws_vpc.main.id
-    ec2_instance_id       = aws_instance.web_application.id
-    ec2_public_ip         = aws_instance.web_application.public_ip
-    rds_endpoint          = aws_db_instance.webapp_db.endpoint
-    s3_bucket_name        = aws_s3_bucket.product_images.bucket
-    application_url       = "http://${aws_instance.web_application.public_ip}:${var.application_port}"
+    environment     = var.environment
+    region          = var.aws_region
+    vpc_id          = aws_vpc.main.id
+    ec2_instance_id = aws_instance.web_application.id
+    ec2_public_ip   = aws_instance.web_application.public_ip
+    rds_endpoint    = aws_db_instance.webapp_db.endpoint
+    s3_bucket_name  = aws_s3_bucket.product_images.bucket
+    application_url = "http://${aws_instance.web_application.public_ip}:${var.application_port}"
   }
 }
 
@@ -162,7 +162,7 @@ output "deployment_summary" {
 # ============================================================================
 output "quick_start" {
   description = "Quick start commands and URLs"
-  value = <<-EOT
+  value       = <<-EOT
     ========================================
     DEPLOYMENT COMPLETE - QUICK START GUIDE
     ========================================
@@ -213,7 +213,7 @@ output "db_password_note" {
 # ============================================================================
 output "testing_commands" {
   description = "Common testing commands"
-  value = <<-EOT
+  value       = <<-EOT
     # Create a test user
     curl -X POST http://${aws_instance.web_application.public_ip}:${var.application_port}/v1/user \
       -H "Content-Type: application/json" \

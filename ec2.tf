@@ -113,7 +113,7 @@ resource "aws_instance" "web_application" {
     aws_iam_role_policy_attachment.webapp_s3_policy_attachment,
     aws_iam_role_policy_attachment.webapp_cloudwatch_policy_attachment,
     aws_db_instance.webapp_db,
-    random_password.db_password  # ✅ Ensure password is generated first
+    random_password.db_password # ✅ Ensure password is generated first
   ]
 
   tags = merge(

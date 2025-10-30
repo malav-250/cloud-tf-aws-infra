@@ -190,7 +190,7 @@ variable "db_password" {
   description = "Database master password (optional - will be auto-generated if not provided)"
   type        = string
   sensitive   = true
-  default     = null  # Will be auto-generated if null
+  default     = null # Will be auto-generated if null
 }
 
 # ============================================================================

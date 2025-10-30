@@ -111,7 +111,7 @@ resource "aws_db_instance" "webapp_db" {
   # Database configuration - Using auto-generated password
   db_name  = var.db_name
   username = var.db_username
-  password = random_password.db_password.result  # ✅ AUTO-GENERATED PASSWORD
+  password = random_password.db_password.result # ✅ AUTO-GENERATED PASSWORD
 
   # Storage configuration
   allocated_storage     = var.db_allocated_storage
