@@ -80,7 +80,6 @@ locals {
   EOF
 }
 
-# EC2 Instance
 resource "aws_instance" "web_application" {
   ami                    = local.ami_id
   instance_type          = var.instance_type
