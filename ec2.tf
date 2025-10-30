@@ -33,15 +33,15 @@ locals {
     APP_DIR="/opt/csye6225"
     cd "$APP_DIR"
     
-    # Add RDS configuration
+    # Add RDS configuration with AUTO-GENERATED PASSWORD
     echo "" >> .env
     echo "# RDS Database Configuration" >> .env
     echo "DATABASE_HOST=${aws_db_instance.webapp_db.address}" >> .env
     echo "DATABASE_PORT=${aws_db_instance.webapp_db.port}" >> .env
     echo "DATABASE_NAME=${var.db_name}" >> .env
     echo "DATABASE_USER=${var.db_username}" >> .env
-    echo "DATABASE_PASSWORD=${var.db_password}" >> .env
-    echo "DATABASE_URL=postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.webapp_db.address}:${aws_db_instance.webapp_db.port}/${var.db_name}" >> .env
+    echo "DATABASE_PASSWORD=${random_password.db_password.result}" >> .env
+    echo "DATABASE_URL=postgresql://${var.db_username}:${random_password.db_password.result}@${aws_db_instance.webapp_db.address}:${aws_db_instance.webapp_db.port}/${var.db_name}" >> .env
     
     # Add S3 configuration
     echo "" >> .env
@@ -107,13 +107,14 @@ resource "aws_instance" "web_application" {
   # Use the local user_data
   user_data = base64encode(local.user_data)
 
-  # CRITICAL: Ensure all IAM policies are attached before instance starts
+  # CRITICAL: Ensure all resources are ready before instance starts
   depends_on = [
     aws_s3_bucket.product_images,
     aws_iam_instance_profile.webapp_instance_profile,
     aws_iam_role_policy_attachment.webapp_s3_policy_attachment,
     aws_iam_role_policy_attachment.webapp_cloudwatch_policy_attachment,
-    aws_db_instance.webapp_db
+    aws_db_instance.webapp_db,
+    random_password.db_password  # ✅ Ensure password is generated first
   ]
 
   tags = merge(

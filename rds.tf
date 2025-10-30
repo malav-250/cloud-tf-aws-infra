@@ -1,6 +1,20 @@
 # rds.tf - RDS PostgreSQL Database Configuration
 
 # ============================================================================
+# RANDOM PASSWORD GENERATION
+# ============================================================================
+resource "random_password" "db_password" {
+  length  = 16
+  special = true
+  # Avoid characters that might cause issues in connection strings or shell
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+  min_lower        = 2
+  min_upper        = 2
+  min_numeric      = 2
+  min_special      = 2
+}
+
+# ============================================================================
 # DB SUBNET GROUP
 # ============================================================================
 # RDS requires a DB subnet group with subnets in at least 2 AZs
@@ -94,10 +108,10 @@ resource "aws_db_instance" "webapp_db" {
   instance_class       = var.db_instance_class
   parameter_group_name = aws_db_parameter_group.webapp.name
 
-  # Database configuration
+  # Database configuration - Using auto-generated password
   db_name  = var.db_name
   username = var.db_username
-  password = var.db_password
+  password = random_password.db_password.result  # ✅ AUTO-GENERATED PASSWORD
 
   # Storage configuration
   allocated_storage     = var.db_allocated_storage
@@ -143,9 +157,19 @@ resource "aws_db_instance" "webapp_db" {
     prevent_destroy = false # Set to true in production
   }
 
-  # Depends on subnet group and security group
+  # Depends on subnet group, security group, and password generation
   depends_on = [
     aws_db_subnet_group.webapp,
-    aws_security_group.rds
+    aws_security_group.rds,
+    random_password.db_password
   ]
 }
+
+# ============================================================================
+# OUTPUT - For reference (DO NOT output password in production!)
+# ============================================================================
+# Uncomment for debugging only - NEVER commit with this enabled in production
+# output "db_password" {
+#   value     = random_password.db_password.result
+#   sensitive = true
+# }
