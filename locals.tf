@@ -35,4 +35,10 @@ locals {
       for idx, mapped_az in local.private_subnet_az_mapping : idx if mapped_az == az
     ])
   }
+
+  # ============================================================================
+  # AMI SELECTION LOGIC (NEW)
+  # ============================================================================
+  # Use custom AMI if provided, otherwise use latest from data source
+  ami_id = var.custom_ami_id != "" ? var.custom_ami_id : data.aws_ami.latest_custom_ami.id
 }

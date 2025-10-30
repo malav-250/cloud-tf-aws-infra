@@ -131,7 +131,7 @@ resource "aws_iam_role_policy_attachment" "webapp_cloudwatch_policy_attachment" 
   policy_arn = aws_iam_policy.webapp_cloudwatch_policy.arn
 }
 
-# ============================================================================
+# ===========================================================================
 # INSTANCE PROFILE
 # ============================================================================
 resource "aws_iam_instance_profile" "webapp_instance_profile" {

@@ -153,17 +153,17 @@ output "application_security_group_name" {
 # AMI Outputs
 output "ami_id_used" {
   description = "AMI ID used for the EC2 instance"
-  value       = var.custom_ami_id != "" ? var.custom_ami_id : data.aws_ami.latest_custom_ami.id
+  value       = local.ami_id
 }
 
 output "ami_name" {
   description = "Name of the AMI used"
-  value       = var.custom_ami_id != "" ? "Custom AMI specified" : data.aws_ami.latest_custom_ami.name
+  value       = var.custom_ami_id != "" ? "Custom AMI: ${var.custom_ami_id}" : data.aws_ami.latest_custom_ami.name
 }
 
 output "ami_creation_date" {
   description = "Creation date of the AMI"
-  value       = var.custom_ami_id != "" ? "N/A" : data.aws_ami.latest_custom_ami.creation_date
+  value       = var.custom_ami_id != "" ? "N/A (Custom AMI specified)" : data.aws_ami.latest_custom_ami.creation_date
 }
 
 # EC2 Instance Outputs
@@ -219,7 +219,7 @@ output "complete_infrastructure_summary" {
     # Compute
     instance_id   = aws_instance.web_application.id
     instance_type = var.instance_type
-    ami_id        = var.custom_ami_id != "" ? var.custom_ami_id : data.aws_ami.latest_custom_ami.id
+    ami_id        = local.ami_id
     public_ip     = aws_instance.web_application.public_ip
 
     # Application
@@ -339,7 +339,7 @@ output "complete_infrastructure_summary_with_rds" {
     # Compute
     ec2_instance_id   = aws_instance.web_application.id
     ec2_instance_type = var.instance_type
-    ec2_ami_id        = data.aws_ami.latest_custom_ami.id
+    ec2_ami_id        = local.ami_id
     ec2_public_ip     = aws_instance.web_application.public_ip
 
     # Database
