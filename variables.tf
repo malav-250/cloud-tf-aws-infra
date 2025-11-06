@@ -281,3 +281,130 @@ variable "db_deletion_protection" {
   type        = bool
   default     = false # Set to true for production
 }
+
+# ========================================
+# Auto Scaling Group Variables
+# ========================================
+
+variable "asg_min_size" {
+  description = "Minimum number of instances in ASG"
+  type        = number
+  default     = 3
+}
+
+variable "asg_max_size" {
+  description = "Maximum number of instances in ASG"
+  type        = number
+  default     = 5
+}
+
+variable "asg_desired_capacity" {
+  description = "Desired number of instances in ASG"
+  type        = number
+  default     = 1
+}
+
+variable "asg_cooldown" {
+  description = "Cooldown period in seconds between scaling activities"
+  type        = number
+  default     = 60
+}
+
+variable "asg_health_check_grace_period" {
+  description = "Time in seconds after instance comes into service before checking health"
+  type        = number
+  default     = 300
+}
+
+# ========================================
+# Application Load Balancer Variables
+# ========================================
+
+variable "alb_name" {
+  description = "Name of the Application Load Balancer"
+  type        = string
+  default     = "csye6225-alb"
+}
+
+variable "health_check_path" {
+  description = "Health check endpoint path"
+  type        = string
+  default     = "/healthz"
+}
+
+variable "health_check_interval" {
+  description = "Health check interval in seconds"
+  type        = number
+  default     = 30
+}
+
+variable "health_check_timeout" {
+  description = "Health check timeout in seconds"
+  type        = number
+  default     = 5
+}
+
+variable "healthy_threshold" {
+  description = "Number of consecutive health checks successes required"
+  type        = number
+  default     = 2
+}
+
+variable "unhealthy_threshold" {
+  description = "Number of consecutive health check failures required"
+  type        = number
+  default     = 2
+}
+
+# variable "application_port" {
+#   description = "Port on which the application runs"
+#   type        = number
+#   default     = 8000
+# }
+
+# ========================================
+# Auto Scaling Policy Variables
+# ========================================
+
+variable "scale_up_cpu_threshold" {
+  description = "CPU percentage threshold to trigger scale up"
+  type        = number
+  default     = 5.0
+}
+
+variable "scale_down_cpu_threshold" {
+  description = "CPU percentage threshold to trigger scale down"
+  type        = number
+  default     = 3.0
+}
+
+variable "scale_up_adjustment" {
+  description = "Number of instances to add during scale up"
+  type        = number
+  default     = 1
+}
+
+variable "scale_down_adjustment" {
+  description = "Number of instances to remove during scale down"
+  type        = number
+  default     = -1
+}
+
+# ========================================
+# DNS Variables
+# ========================================
+
+variable "domain_name" {
+  description = "Root domain name"
+  type        = string
+}
+
+variable "subdomain" {
+  description = "Subdomain prefix (dev, demo, or empty for root)"
+  type        = string
+}
+
+variable "route53_zone_id" {
+  description = "Route53 hosted zone ID"
+  type        = string
+}

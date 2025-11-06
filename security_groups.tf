@@ -1,48 +1,33 @@
-# Application Security Group
-resource "aws_security_group" "application" {
-  name        = "${var.vpc_name}-application-sg"
-  description = "Security group for web application EC2 instances"
+# ========================================
+# Application Load Balancer Security Group
+# ========================================
+
+resource "aws_security_group" "load_balancer" {
+  name        = "${var.environment}-load-balancer-sg"
+  description = "Security group for Application Load Balancer"
   vpc_id      = aws_vpc.main.id
 
-  # SSH access (port 22)
+  # Allow HTTP traffic from anywhere
   ingress {
-    description = "SSH from anywhere"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # HTTP access (port 80)
-  ingress {
-    description = "HTTP from anywhere"
+    description = "HTTP from Internet"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # HTTPS access (port 443)
+  # Allow HTTPS traffic from anywhere
   ingress {
-    description = "HTTPS from anywhere"
+    description = "HTTPS from Internet"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Application port (configurable)
-  ingress {
-    description = "Application port from anywhere"
-    from_port   = var.application_port
-    to_port     = var.application_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   # Allow all outbound traffic
   egress {
-    description = "Allow all outbound traffic"
+    description = "All outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -50,6 +35,52 @@ resource "aws_security_group" "application" {
   }
 
   tags = {
-    Name = "${var.vpc_name}-application-sg"
+    Name        = "${var.environment}-load-balancer-sg"
+    Environment = var.environment
   }
 }
+
+# ========================================
+# Application Security Group (UPDATED)
+# ========================================
+
+resource "aws_security_group" "application" {
+  name        = "${var.environment}-application-sg"
+  description = "Security group for web application instances"
+  vpc_id      = aws_vpc.main.id
+
+  # SSH access (for debugging - consider restricting this further)
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # In production, restrict this to your IP or bastion host
+  }
+
+  # Application port - ONLY from Load Balancer
+  ingress {
+    description     = "Application port from Load Balancer"
+    from_port       = var.application_port
+    to_port         = var.application_port
+    protocol        = "tcp"
+    security_groups = [aws_security_group.load_balancer.id]
+  }
+
+  # Allow all outbound traffic
+  egress {
+    description = "All outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "${var.environment}-application-sg"
+    Environment = var.environment
+  }
+}
+
+# Keep your existing database security group as is
+# (it should already allow traffic from application security group)
