@@ -408,3 +408,18 @@ variable "route53_zone_id" {
   description = "Route53 hosted zone ID"
   type        = string
 }
+
+# ========================================
+# SendGrid Configuration (Assignment 9)
+# ========================================
+
+variable "sendgrid_api_key" {
+  description = "SendGrid API key for email notifications"
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = can(regex("^SG\\.", var.sendgrid_api_key))
+    error_message = "SendGrid API key must start with 'SG.'"
+  }
+}
