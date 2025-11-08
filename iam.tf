@@ -87,6 +87,100 @@ resource "aws_iam_policy" "webapp_cloudwatch_policy" {
 }
 
 # ============================================================================
+# KMS POLICY (NEW - Assignment 9)
+# ============================================================================
+resource "aws_iam_policy" "webapp_kms_policy" {
+  name        = "WebAppKMSPolicy-${var.environment}"
+  description = "Policy for web application to use KMS keys for encryption/decryption"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowKMSForEBS"
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:Encrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:CreateGrant",
+          "kms:DescribeKey"
+        ]
+        Resource = [
+          aws_kms_key.ebs.arn
+        ]
+      },
+      {
+        Sid    = "AllowKMSForS3"
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:Encrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey"
+        ]
+        Resource = [
+          aws_kms_key.s3.arn
+        ]
+      },
+      {
+        Sid    = "AllowKMSForSecretsManager"
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:DescribeKey"
+        ]
+        Resource = [
+          aws_kms_key.secrets.arn
+        ]
+      }
+    ]
+  })
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name        = "WebApp-KMS-Policy-${var.environment}"
+      Environment = var.environment
+    }
+  )
+}
+
+# ============================================================================
+# SECRETS MANAGER POLICY (NEW - Assignment 9)
+# ============================================================================
+resource "aws_iam_policy" "webapp_secrets_policy" {
+  name        = "WebAppSecretsPolicy-${var.environment}"
+  description = "Policy for web application to read secrets from Secrets Manager"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Resource = [
+          "arn:aws:secretsmanager:${var.aws_region}:*:secret:csye6225-*"
+        ]
+      }
+    ]
+  })
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name        = "WebApp-Secrets-Policy-${var.environment}"
+      Environment = var.environment
+    }
+  )
+}
+
+# ============================================================================
 # IAM ROLE
 # ============================================================================
 resource "aws_iam_role" "webapp_ec2_role" {
@@ -129,6 +223,18 @@ resource "aws_iam_role_policy_attachment" "webapp_s3_policy_attachment" {
 resource "aws_iam_role_policy_attachment" "webapp_cloudwatch_policy_attachment" {
   role       = aws_iam_role.webapp_ec2_role.name
   policy_arn = aws_iam_policy.webapp_cloudwatch_policy.arn
+}
+
+# Attach KMS policy to the EC2 role (NEW - Assignment 9)
+resource "aws_iam_role_policy_attachment" "webapp_kms_policy_attachment" {
+  role       = aws_iam_role.webapp_ec2_role.name
+  policy_arn = aws_iam_policy.webapp_kms_policy.arn
+}
+
+# Attach Secrets Manager policy to the EC2 role (NEW - Assignment 9)
+resource "aws_iam_role_policy_attachment" "webapp_secrets_policy_attachment" {
+  role       = aws_iam_role.webapp_ec2_role.name
+  policy_arn = aws_iam_policy.webapp_secrets_policy.arn
 }
 
 # ============================================================================
