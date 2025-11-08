@@ -9,10 +9,10 @@
 resource "aws_secretsmanager_secret" "db_password" {
   name        = "csye6225-db-password-${var.environment}"
   description = "RDS PostgreSQL database password for ${var.environment} environment"
-  
+
   # Encrypt with KMS key
   kms_key_id = aws_kms_key.secrets.key_id
-  
+
   # Recovery window (7-30 days) - time to recover if accidentally deleted
   recovery_window_in_days = 7
 
@@ -29,7 +29,7 @@ resource "aws_secretsmanager_secret" "db_password" {
 # Store the actual password value
 resource "aws_secretsmanager_secret_version" "db_password" {
   secret_id = aws_secretsmanager_secret.db_password.id
-  
+
   # Store as JSON for easy parsing
   secret_string = jsonencode({
     username = var.db_username
@@ -49,10 +49,10 @@ resource "aws_secretsmanager_secret_version" "db_password" {
 resource "aws_secretsmanager_secret" "sendgrid_api_key" {
   name        = "csye6225-sendgrid-key-${var.environment}"
   description = "SendGrid API key for email notifications - ${var.environment}"
-  
+
   # Encrypt with KMS key
   kms_key_id = aws_kms_key.secrets.key_id
-  
+
   recovery_window_in_days = 7
 
   tags = merge(
@@ -69,12 +69,12 @@ resource "aws_secretsmanager_secret" "sendgrid_api_key" {
 # NOTE: This will be added manually first, then imported
 resource "aws_secretsmanager_secret_version" "sendgrid_api_key" {
   secret_id = aws_secretsmanager_secret.sendgrid_api_key.id
-  
+
   # Store as JSON for easy parsing
   secret_string = jsonencode({
-    api_key     = var.sendgrid_api_key
-    from_email  = "noreply@${var.domain_name}"
-    from_name   = "CSYE6225 WebApp"
+    api_key    = var.sendgrid_api_key
+    from_email = "noreply@${var.domain_name}"
+    from_name  = "CSYE6225 WebApp"
   })
 }
 
