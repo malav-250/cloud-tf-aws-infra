@@ -50,14 +50,15 @@ resource "aws_s3_bucket_versioning" "product_images" {
   }
 }
 
-# Server-side encryption for security
 resource "aws_s3_bucket_server_side_encryption_configuration" "product_images" {
   bucket = aws_s3_bucket.product_images.id
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = "aws:kms"          # ← Use KMS
+      kms_master_key_id = aws_kms_key.s3.arn # ← Customer-managed key
     }
+    bucket_key_enabled = true # ← Optional: reduces KMS costs
   }
 }
 

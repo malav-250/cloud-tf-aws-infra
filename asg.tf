@@ -21,11 +21,8 @@ resource "aws_launch_template" "application" {
   }
 
   # User data script
+  # User data script
   user_data = base64encode(templatefile("${path.module}/user_data.sh", {
-    db_host     = element(split(":", aws_db_instance.webapp_db.endpoint), 0)
-    db_name     = var.db_name
-    db_username = var.db_username
-    db_password = random_password.db_password.result
     s3_bucket   = aws_s3_bucket.product_images.bucket
     region      = var.aws_region
     environment = var.environment
@@ -40,6 +37,7 @@ resource "aws_launch_template" "application" {
       volume_type           = "gp3"
       delete_on_termination = true
       encrypted             = true
+      kms_key_id            = aws_kms_key.ebs.arn
     }
   }
 

@@ -310,3 +310,9 @@ output "target_group_arn" {
   description = "ARN of the target group"
   value       = aws_lb_target_group.application.arn
 }
+
+
+output "launch_template_id" {
+  description = "ID of the launch template"
+  value       = aws_launch_template.application.id
+}

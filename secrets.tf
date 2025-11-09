@@ -14,7 +14,7 @@ resource "aws_secretsmanager_secret" "db_password" {
   kms_key_id = aws_kms_key.secrets.key_id
 
   # Recovery window (7-30 days) - time to recover if accidentally deleted
-  recovery_window_in_days = 7
+  recovery_window_in_days = 0
 
   tags = merge(
     var.common_tags,
