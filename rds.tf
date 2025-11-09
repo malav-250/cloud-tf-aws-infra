@@ -118,6 +118,8 @@ resource "aws_db_instance" "webapp_db" {
   max_allocated_storage = var.db_max_allocated_storage
   storage_type          = var.db_storage_type
   storage_encrypted     = true
+  kms_key_id            = aws_kms_key.rds.arn # ← Customer-managed key
+
 
   # Network configuration
   db_subnet_group_name   = aws_db_subnet_group.webapp.name

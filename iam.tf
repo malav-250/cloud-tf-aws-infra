@@ -149,7 +149,7 @@ resource "aws_iam_policy" "webapp_kms_policy" {
 }
 
 # ============================================================================
-# SECRETS MANAGER POLICY (NEW - Assignment 9)
+# SECRETS MANAGER POLICY (Assignment 9)
 # ============================================================================
 resource "aws_iam_policy" "webapp_secrets_policy" {
   name        = "WebAppSecretsPolicy-${var.environment}"
@@ -165,7 +165,8 @@ resource "aws_iam_policy" "webapp_secrets_policy" {
           "secretsmanager:DescribeSecret"
         ]
         Resource = [
-          "arn:aws:secretsmanager:${var.aws_region}:*:secret:csye6225-*"
+          aws_secretsmanager_secret.db_password.arn,
+          aws_secretsmanager_secret.sendgrid_api_key.arn
         ]
       }
     ]
