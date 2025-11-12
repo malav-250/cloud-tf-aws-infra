@@ -253,3 +253,52 @@ resource "aws_iam_instance_profile" "webapp_instance_profile" {
     }
   )
 }
+
+
+# ============================================================================
+# SNS POLICY (Assignment 9)
+# ============================================================================
+resource "aws_iam_policy" "webapp_sns_policy" {
+  name        = "WebAppSNSPolicy-${var.environment}"
+  description = "Policy for web application to publish messages to SNS topics"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sns:Publish"
+        ]
+        Resource = aws_sns_topic.email_verification.arn
+      },
+      {
+        Sid    = "AllowKMSForSNS"
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:GenerateDataKey"
+        ]
+        Resource = aws_kms_key.sns.arn
+      }
+    ]
+  })
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name        = "WebApp-SNS-Policy-${var.environment}"
+      Environment = var.environment
+    }
+  )
+}
+
+# ============================================================================
+# POLICY ATTACHMENTS (Add this after existing attachments)
+# ============================================================================
+
+# Attach SNS policy to the EC2 role (NEW - Assignment 9)
+resource "aws_iam_role_policy_attachment" "webapp_sns_policy_attachment" {
+  role       = aws_iam_role.webapp_ec2_role.name
+  policy_arn = aws_iam_policy.webapp_sns_policy.arn
+}

@@ -97,6 +97,13 @@ echo "SENDGRID_API_KEY=$SENDGRID_API_KEY" >> .env
 echo "SENDGRID_FROM_EMAIL=$SENDGRID_FROM_EMAIL" >> .env
 echo "SENDGRID_FROM_NAME=$SENDGRID_FROM_NAME" >> .env
 
+# ============================================================================
+# PHASE 9: Append SNS Topic ARN (changed to use Terraform variable)
+# ============================================================================
+echo "" >> .env
+echo "# SNS Configuration (Phase 9)" >> .env
+echo "SNS_TOPIC_ARN=${sns_topic_arn}" >> .env
+
 # Set correct ownership and permissions
 chown csye6225:csye6225 .env
 chmod 600 .env
