@@ -23,9 +23,10 @@ resource "aws_launch_template" "application" {
   # User data script
   # User data script
   user_data = base64encode(templatefile("${path.module}/user_data.sh", {
-    s3_bucket   = aws_s3_bucket.product_images.bucket
-    region      = var.aws_region
-    environment = var.environment
+    s3_bucket     = aws_s3_bucket.product_images.bucket
+    region        = var.aws_region
+    environment   = var.environment
+    sns_topic_arn = aws_sns_topic.email_verification.arn
   }))
 
   # Block device mapping (if you need to customize EBS)

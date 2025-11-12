@@ -53,7 +53,7 @@ resource "aws_secretsmanager_secret" "sendgrid_api_key" {
   # Encrypt with KMS key
   kms_key_id = aws_kms_key.secrets.key_id
 
-  recovery_window_in_days = 7
+  recovery_window_in_days = 0
 
   tags = merge(
     var.common_tags,

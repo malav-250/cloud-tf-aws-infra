@@ -423,3 +423,37 @@ variable "sendgrid_api_key" {
     error_message = "SendGrid API key must start with 'SG.'"
   }
 }
+
+
+# ============================================================================
+# LAMBDA CONFIGURATION VARIABLES
+# ============================================================================
+
+variable "lambda_function_name" {
+  description = "Name of the Lambda function"
+  type        = string
+}
+
+variable "lambda_zip_file" {
+  description = "Path to Lambda deployment ZIP file"
+  type        = string
+  default     = "lambda-deployment.zip"
+}
+
+variable "lambda_timeout" {
+  description = "Lambda function timeout in seconds"
+  type        = number
+  default     = 30
+}
+
+variable "lambda_memory_size" {
+  description = "Lambda function memory size in MB"
+  type        = number
+  default     = 256
+}
+
+variable "token_expiry_minutes" {
+  description = "Token expiry time in minutes"
+  type        = string
+  default     = "2"
+}

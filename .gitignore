@@ -57,3 +57,5 @@ terraform.rc
 secrets.tfvars
 *.secret.tfvars
 *secret*.tfvars
+
+*.zip
