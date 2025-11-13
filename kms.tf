@@ -109,7 +109,7 @@ resource "aws_kms_grant" "ebs_autoscaling" {
   name              = "ebs-autoscaling-grant-${var.environment}"
   key_id            = aws_kms_key.ebs.key_id
   grantee_principal = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
-  
+
 
   operations = [
     "Encrypt",
