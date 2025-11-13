@@ -59,25 +59,6 @@ resource "aws_security_group" "application" {
   description = "Security group for web application instances"
   vpc_id      = aws_vpc.main.id
 
-  # SSH access (IPv4)
-  # For production, restrict this to your IP or bastion host
-  ingress {
-    description = "SSH (IPv4)"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # SSH access (IPv6)
-  ingress {
-    description      = "SSH (IPv6)"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
   # Application port - ONLY from Load Balancer
   # No need for IPv6 here since traffic comes from ALB security group
   ingress {

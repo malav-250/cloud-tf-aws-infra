@@ -1,35 +1,32 @@
-# lambda.tf - Workspace-Aware Lambda Configuration
-# Automatically uses correct environment based on workspace
+# lambda.tf - Environment-Aware Lambda Configuration
+# Uses var.environment from tfvars (dev or demo)
 
 # ============================================================================
-# LOCAL VARIABLES - Workspace-Aware Configuration
+# LOCAL VARIABLES - Environment Configuration
 # ============================================================================
 locals {
-  # Get current workspace name (dev or demo)
-  workspace = terraform.workspace
-
-  # Environment-specific configurations
+  # Environment-specific configurations mapped from var.environment
   environment_config = {
     dev = {
       function_name  = "csye6225-email-verification-dev"
-      domain         = "dev.malavgajera.me"
+      domain         = "dev.${var.domain_name}"
       dynamodb_table = "email-verification-tokens-dev"
       secret_name    = "csye6225-sendgrid-key-dev"
     }
     demo = {
       function_name  = "csye6225-email-verification-demo"
-      domain         = "demo.malavgajera.me"
+      domain         = "demo.${var.domain_name}"
       dynamodb_table = "email-verification-tokens-demo"
       secret_name    = "csye6225-sendgrid-key-demo"
     }
   }
 
-  # Select configuration based on current workspace
-  current_config = local.environment_config[local.workspace]
+  # Select configuration based on var.environment from tfvars
+  current_config = local.environment_config[var.environment]
 }
 
 # ============================================================================
-# LAMBDA EXECUTION ROLE (Workspace-Specific)
+# LAMBDA EXECUTION ROLE
 # ============================================================================
 resource "aws_iam_role" "lambda_execution_role" {
   name = "${local.current_config.function_name}-execution-role"
@@ -51,8 +48,7 @@ resource "aws_iam_role" "lambda_execution_role" {
     var.common_tags,
     {
       Name        = "${local.current_config.function_name}-execution-role"
-      Environment = local.workspace
-      Workspace   = local.workspace
+      Environment = var.environment
     }
   )
 }
@@ -85,7 +81,7 @@ resource "aws_iam_policy" "lambda_cloudwatch_policy" {
     var.common_tags,
     {
       Name        = "${local.current_config.function_name}-cloudwatch-policy"
-      Environment = local.workspace
+      Environment = var.environment
     }
   )
 }
@@ -117,7 +113,7 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
     var.common_tags,
     {
       Name        = "${local.current_config.function_name}-dynamodb-policy"
-      Environment = local.workspace
+      Environment = var.environment
     }
   )
 }
@@ -144,7 +140,7 @@ resource "aws_iam_policy" "lambda_secrets_manager_policy" {
     var.common_tags,
     {
       Name        = "${local.current_config.function_name}-secrets-manager-policy"
-      Environment = local.workspace
+      Environment = var.environment
     }
   )
 }
@@ -177,7 +173,7 @@ resource "aws_iam_policy" "lambda_kms_policy" {
     var.common_tags,
     {
       Name        = "${local.current_config.function_name}-kms-policy"
-      Environment = local.workspace
+      Environment = var.environment
     }
   )
 }
@@ -219,13 +215,13 @@ resource "aws_cloudwatch_log_group" "lambda_log_group" {
     var.common_tags,
     {
       Name        = "${local.current_config.function_name}-log-group"
-      Environment = local.workspace
+      Environment = var.environment
     }
   )
 }
 
 # ============================================================================
-# LAMBDA FUNCTION (Workspace-Aware)
+# LAMBDA FUNCTION
 # ============================================================================
 
 resource "aws_lambda_function" "email_verification" {
@@ -246,7 +242,7 @@ resource "aws_lambda_function" "email_verification" {
       TOKEN_EXPIRY_MINUTES         = var.token_expiry_minutes
       FROM_EMAIL                   = "noreply@${var.domain_name}"
       DOMAIN                       = local.current_config.domain
-      ENVIRONMENT                  = local.workspace
+      ENVIRONMENT                  = var.environment
     }
   }
 
@@ -262,8 +258,7 @@ resource "aws_lambda_function" "email_verification" {
     var.common_tags,
     {
       Name        = local.current_config.function_name
-      Environment = local.workspace
-      Workspace   = local.workspace
+      Environment = var.environment
     }
   )
 }
@@ -291,11 +286,11 @@ resource "aws_lambda_permission" "allow_sns" {
 }
 
 # ============================================================================
-# OUTPUTS (Workspace-Aware)
+# OUTPUTS
 # ============================================================================
 
 output "lambda_function_name" {
-  description = "Name of the Lambda function (workspace-specific)"
+  description = "Name of the Lambda function"
   value       = aws_lambda_function.email_verification.function_name
 }
 
@@ -314,16 +309,17 @@ output "lambda_log_group_name" {
   value       = aws_cloudwatch_log_group.lambda_log_group.name
 }
 
-output "current_workspace" {
-  description = "Current Terraform workspace"
-  value       = local.workspace
+output "current_environment" {
+  description = "Current environment from tfvars"
+  value       = var.environment
 }
 
-output "current_environment_config" {
-  description = "Configuration for current workspace"
+output "lambda_configuration" {
+  description = "Lambda configuration for current environment"
   value = {
     function_name  = local.current_config.function_name
     domain         = local.current_config.domain
     dynamodb_table = local.current_config.dynamodb_table
+    secret_name    = local.current_config.secret_name
   }
 }
