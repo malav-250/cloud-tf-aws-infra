@@ -457,3 +457,19 @@ variable "token_expiry_minutes" {
   type        = string
   default     = "2"
 }
+
+# ========================================
+# SSL Certificate Variables
+# ========================================
+
+variable "ssl_certificate_arn" {
+  description = "ARN of existing SSL certificate (leave empty to create new with ACM)"
+  type        = string
+  default     = ""
+}
+
+variable "enable_acm_certificate" {
+  description = "Create ACM certificate with DNS validation (set to false for demo account)"
+  type        = bool
+  default     = true
+}
