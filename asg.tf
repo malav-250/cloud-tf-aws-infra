@@ -3,7 +3,7 @@
 # ========================================
 
 resource "aws_launch_template" "application" {
-  name_prefix   = "${var.environment}-webapp-lt-"
+  name          = "demo-webapp-lt"
   image_id      = local.ami_id
   instance_type = var.instance_type
   key_name      = var.ec2_key_name
@@ -136,8 +136,15 @@ resource "aws_autoscaling_group" "application" {
   # Wait for instances to be healthy before considering deployment successful
   wait_for_capacity_timeout = "10m"
 
+  # CRITICAL: Ensure all required resources exist BEFORE launching instances
   depends_on = [
     aws_lb.application,
-    aws_lb_target_group.application
+    aws_lb_target_group.application,
+    aws_lb_listener.https,
+    aws_db_instance.webapp_db,
+    aws_secretsmanager_secret_version.db_password,  # ✅ Database secret must exist
+    aws_secretsmanager_secret_version.sendgrid_api_key,  # ✅ Changed to secret_version
+    aws_s3_bucket.product_images,
+    aws_sns_topic.email_verification
   ]
 }

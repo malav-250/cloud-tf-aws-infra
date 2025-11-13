@@ -216,8 +216,8 @@ resource "aws_lambda_function" "email_verification" {
       SENDGRID_API_KEY_SECRET_NAME = aws_secretsmanager_secret.sendgrid_api_key.name
       REGION                       = var.aws_region
       TOKEN_EXPIRY_MINUTES         = var.token_expiry_minutes
-      FROM_EMAIL                   = "noreply@malavgajera.me" # Optional: matches your subdomain
-      DOMAIN                       = "demo.malavgajera.me"    # ← Change this!
+      FROM_EMAIL                   = "noreply@${var.domain_name}"
+      DOMAIN                       = var.subdomain != "" ? "${var.subdomain}.${var.domain_name}" : var.domain_name
     }
   }
 
