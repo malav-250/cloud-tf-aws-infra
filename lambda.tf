@@ -7,23 +7,23 @@
 locals {
   # Get current workspace name (dev or demo)
   workspace = terraform.workspace
-  
+
   # Environment-specific configurations
   environment_config = {
     dev = {
-      function_name = "csye6225-email-verification-dev"
-      domain        = "dev.malavgajera.me"
+      function_name  = "csye6225-email-verification-dev"
+      domain         = "dev.malavgajera.me"
       dynamodb_table = "email-verification-tokens-dev"
-      secret_name   = "csye6225-sendgrid-key-dev"
+      secret_name    = "csye6225-sendgrid-key-dev"
     }
     demo = {
-      function_name = "csye6225-email-verification-demo"
-      domain        = "demo.malavgajera.me"
+      function_name  = "csye6225-email-verification-demo"
+      domain         = "demo.malavgajera.me"
       dynamodb_table = "email-verification-tokens-demo"
-      secret_name   = "csye6225-sendgrid-key-demo"
+      secret_name    = "csye6225-sendgrid-key-demo"
     }
   }
-  
+
   # Select configuration based on current workspace
   current_config = local.environment_config[local.workspace]
 }
