@@ -142,8 +142,8 @@ resource "aws_autoscaling_group" "application" {
     aws_lb_target_group.application,
     aws_lb_listener.https,
     aws_db_instance.webapp_db,
-    aws_secretsmanager_secret_version.db_password,  # ✅ Database secret must exist
-    aws_secretsmanager_secret_version.sendgrid_api_key,  # ✅ Changed to secret_version
+    aws_secretsmanager_secret_version.db_password,      # ✅ Database secret must exist
+    aws_secretsmanager_secret_version.sendgrid_api_key, # ✅ Changed to secret_version
     aws_s3_bucket.product_images,
     aws_sns_topic.email_verification
   ]

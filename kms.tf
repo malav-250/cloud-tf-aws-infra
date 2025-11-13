@@ -13,6 +13,7 @@ resource "aws_kms_key" "ebs" {
   description             = "KMS key for EC2 EBS volume encryption - ${var.environment}"
   deletion_window_in_days = 10
   enable_key_rotation     = true
+  rotation_period_in_days = 90
 
   tags = merge(
     var.common_tags,
@@ -36,6 +37,7 @@ resource "aws_kms_key" "rds" {
   description             = "KMS key for RDS database encryption - ${var.environment}"
   deletion_window_in_days = 10
   enable_key_rotation     = true
+  rotation_period_in_days = 90
 
   tags = merge(
     var.common_tags,
@@ -59,6 +61,7 @@ resource "aws_kms_key" "s3" {
   description             = "KMS key for S3 bucket encryption - ${var.environment}"
   deletion_window_in_days = 10
   enable_key_rotation     = true
+  rotation_period_in_days = 90
 
   tags = merge(
     var.common_tags,
@@ -82,6 +85,7 @@ resource "aws_kms_key" "secrets" {
   description             = "KMS key for Secrets Manager encryption - ${var.environment}"
   deletion_window_in_days = 10
   enable_key_rotation     = true
+  rotation_period_in_days = 90
 
   tags = merge(
     var.common_tags,
@@ -105,6 +109,7 @@ resource "aws_kms_grant" "ebs_autoscaling" {
   name              = "ebs-autoscaling-grant-${var.environment}"
   key_id            = aws_kms_key.ebs.key_id
   grantee_principal = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
+  
 
   operations = [
     "Encrypt",

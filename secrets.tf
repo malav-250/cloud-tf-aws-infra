@@ -6,9 +6,9 @@
 # ============================================================================
 
 resource "aws_secretsmanager_secret" "db_password" {
-  name        = "csye6225-db-password-${var.environment}"
-  description = "RDS PostgreSQL database password for ${var.environment} environment"
-  kms_key_id  = aws_kms_key.secrets.key_id
+  name                    = "csye6225-db-password-${var.environment}"
+  description             = "RDS PostgreSQL database password for ${var.environment} environment"
+  kms_key_id              = aws_kms_key.secrets.key_id
   recovery_window_in_days = 0
 
   tags = merge(
@@ -39,9 +39,9 @@ resource "aws_secretsmanager_secret_version" "db_password" {
 # ============================================================================
 
 resource "aws_secretsmanager_secret" "sendgrid_api_key" {
-  name        = "csye6225-sendgrid-key-${var.environment}"
-  description = "SendGrid API key for email notifications - ${var.environment}"
-  kms_key_id  = aws_kms_key.secrets.key_id
+  name                    = "csye6225-sendgrid-key-${var.environment}"
+  description             = "SendGrid API key for email notifications - ${var.environment}"
+  kms_key_id              = aws_kms_key.secrets.key_id
   recovery_window_in_days = 0
 
   tags = merge(
